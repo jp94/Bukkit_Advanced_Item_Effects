@@ -12,6 +12,7 @@ Command Reference
 	*	**description**: Removes all special effects from an item.
 	*	**usage**: /AIEClear
 	*	**permission**: AIE.clear
+
 Permission Reference
 ==============================
 *	**AIE.***:
