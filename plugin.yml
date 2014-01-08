@@ -1,0 +1,14 @@
+name: Advanced Item Effects
+version: 2.0
+main: edu.gatech.at.jamespark.AdvancedItemEffects.Main
+author: jamespark@gatech.edu
+commands:
+    AIEAdd:
+        description: Add a special effect to an item.
+        permission: AIE.add
+    AIERemove:
+        description: Remove a special effect from an item.
+        permission: AIE.remove
+    AIEClear:
+        description: Removes all special effects from an item.
+        permission: AIE.clear
