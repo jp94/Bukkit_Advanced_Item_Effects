@@ -105,20 +105,16 @@ public class Effects {
      *            Player to remove all potion effects bound in metadata
      */
     public void removeAllBoundItemPotionEffects(Player player) {
-        if (player.hasMetadata("hasParticleEffectItem")) {
-
-        } else {
-            for (int x = 0; x < potionEffectsList.length; x++) {
-                PotionEffectType potionEffectType = PotionEffectType
-                        .getByName(potionEffectsList[x]);
-                if (player.hasMetadata(potionEffectType.toString())) {
-                    removeItemPotionEffect(player, potionEffectType);
-                }
+        for (int x = 0; x < potionEffectsList.length; x++) {
+            PotionEffectType potionEffectType = PotionEffectType
+                    .getByName(potionEffectsList[x]);
+            if (player.hasMetadata(potionEffectType.toString())) {
+                removeItemPotionEffect(player, potionEffectType);
             }
         }
     }
 
-    private void removeBoundItemParticleEffects(Player player, Effect type) {
+    private void removeBoundItemParticleEffect(Player player, Effect type) {
         player.removeMetadata(type.toString(), plugin);
         if (player.hasMetadata("hasParticleEffectItem")) {
             player.removeMetadata("hasParticleEffectItem", plugin);
@@ -129,7 +125,7 @@ public class Effects {
         for (int x = 0; x < particleEffectsList.length; x++) {
             Effect effect = Effect.valueOf(particleEffectsList[x]);
             if (player.hasMetadata(effect.toString())) {
-                removeBoundItemParticleEffects(player, effect);
+                removeBoundItemParticleEffect(player, effect);
             }
         }
     }
