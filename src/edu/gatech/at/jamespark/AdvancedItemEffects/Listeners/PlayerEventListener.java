@@ -5,6 +5,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerItemBreakEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
@@ -19,6 +20,8 @@ import edu.gatech.at.jamespark.AdvancedItemEffects.Effects;
 public class PlayerEventListener implements Listener {
 
     private Effects effects;
+
+    // private boolean armorHasEffects = false;
 
     public PlayerEventListener(Effects effects) {
         this.effects = effects;
@@ -39,17 +42,6 @@ public class PlayerEventListener implements Listener {
             }
         } else {
             effects.removeAllBoundEffects(player);
-        }
-
-        if (heldItem != null) {
-            List<String> heldItemLore = heldItem.getItemMeta().getLore();
-            if (heldItemLore != null
-                    && heldItemLore.contains(ChatColor.GOLD + "Effects:")) {
-
-            } else {
-            }
-        } else {
-
         }
     }
 
@@ -111,4 +103,52 @@ public class PlayerEventListener implements Listener {
             }
         }
     }
+
+    // TODO Create a helper method. Repeated code present in PlayerItemHeldEvent
+    // TODO Emergency bug update. Commented out things that aren't needed right
+    // now.
+    @EventHandler
+    public void onPlayerInventoryClose(InventoryCloseEvent event) {
+
+        if (event.getPlayer() instanceof Player) {
+            Player player = (Player) event.getPlayer();
+            // ItemStack[] armorList = player.getInventory().getArmorContents();
+
+            // TODO THIS IS EDITED. FIX IT BACK LATER
+            // Checks for armor effects
+            // for (int x = 0; x < armorList.length; x++) {
+            // ItemMeta itemMeta = armorList[x].getItemMeta();
+            // if (itemMeta != null && event.getWhoClicked() instanceof Player)
+            // {
+            // List<String> equippedItemLore = armorList[x].getItemMeta()
+            // .getLore();
+            // if (equippedItemLore != null
+            // && equippedItemLore.contains(ChatColor.GOLD
+            // + "Effects:")) {
+            // effects.removeAllBoundEffects(player);
+            // effects.addAllBoundEffects(player, equippedItemLore);
+            // }
+            // }
+            // }
+            // Checks for item in hand effects
+            ItemStack heldItem = player.getItemInHand();
+            if (heldItem.getItemMeta() != null
+                    && heldItem.getItemMeta().getLore() != null) {
+                List<String> heldItemLore = heldItem.getItemMeta().getLore();
+                // System.out.println("Updated Item (should not have any items): "
+                // + heldItem.toString());
+                if (heldItemLore != null
+                        && heldItemLore.contains(ChatColor.GOLD + "Effects:")) {
+                    effects.removeAllBoundEffects(player);
+                    effects.addAllBoundEffects(player, heldItemLore);
+                } else {
+                    effects.removeAllBoundEffects(player);
+                }
+                // effects.addAllBoundEffects(player, heldItemLore);
+            } else {
+                effects.removeAllBoundEffects(player);
+            }
+        }
+    }
+
 }
