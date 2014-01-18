@@ -4,14 +4,15 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.bukkit.ChatColor;
 import org.bukkit.Effect;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-// TODO check for "hasParticleEffectItem" it is no longer used.
 /**
  * Contains helper methods
  * 
@@ -46,12 +47,6 @@ public class Effects {
                 new FixedMetadataValue(plugin, true));
     }
 
-    /**
-     * This method already checks if List is null.
-     * 
-     * @param player
-     * @param heldItemLore
-     */
     public void addAllBoundItemParticleEffects(Player player,
             List<String> heldItemLore) {
         for (int x = 0; x < particleEffectsList.length; x++) {
@@ -94,9 +89,50 @@ public class Effects {
         }
     }
 
-    public void addAllBoundEffects(Player player, List<String> heldItemLore) {
-        addAllBoundItemParticleEffects(player, heldItemLore);
-        addAllBoundItemPotionEffects(player, heldItemLore);
+    /**
+     * Adds all particle and potion effects given a specific item's lore.
+     * 
+     * @param player
+     *            Player to add item effects.
+     * @param itemLore
+     *            Lore that contains effects list to add listed effects to a
+     *            player.
+     */
+    public void addAllItemEffects(Player player, List<String> itemLore) {
+        addAllBoundItemParticleEffects(player, itemLore);
+        addAllBoundItemPotionEffects(player, itemLore);
+    }
+
+    /**
+     * Adds armor and held item effects. DOES NOT REMOVE BUT ONLY ADDS EFFECTS.
+     * CHECK FOR DUPLICATE EFFECTS BY REMOVING EFFECTS PRIOR TO THIS HELPER
+     * METHOD.
+     * 
+     * @param player
+     *            Player to add all active effects listed in items' lore.
+     */
+    public void addArmorAndHeldItemEffects(Player player) {
+        // Checks for equipped items effects
+        ItemStack[] armorList = player.getInventory().getArmorContents();
+        for (int x = 0; x < armorList.length; x++) {
+            if (armorList[x].hasItemMeta()
+                    && armorList[x].getItemMeta().hasLore()) {
+                List<String> equippedItemLore = armorList[x].getItemMeta()
+                        .getLore();
+                if (equippedItemLore.contains(ChatColor.GOLD + "Effects:")) {
+                    addAllItemEffects(player, equippedItemLore);
+                }
+            }
+        }
+
+        // Checks for item in hand effects
+        ItemStack heldItem = player.getItemInHand();
+        if (heldItem.hasItemMeta() && heldItem.getItemMeta().hasLore()) {
+            List<String> heldItemLore = heldItem.getItemMeta().getLore();
+            if (heldItemLore.contains(ChatColor.GOLD + "Effects:")) {
+                addAllItemEffects(player, heldItemLore);
+            }
+        }
     }
 
     private void removeItemPotionEffect(Player player, PotionEffectType type) {
@@ -170,8 +206,6 @@ public class Effects {
                 player.removePotionEffect(type);
             }
         }
-
-        player.removeMetadata("hasHeldItemEffects", plugin);
     }
 
     /**
@@ -183,28 +217,6 @@ public class Effects {
     public void removeAllBoundEffects(Player player) {
         removeAllParticleEffects(player);
         removeAllBoundItemPotionEffects(player);
-    }
-
-    // TODO NOT USED
-    /**
-     * Adds a player to the playerList ArrayList.
-     * 
-     * @param player
-     *            Player to be added
-     */
-    public void addPlayer(Player player) {
-        playerList.add(player);
-    }
-
-    // TODO NOT USED
-    /**
-     * Removes a player from a playerList ArrayList.
-     * 
-     * @param player
-     *            Player to be removed
-     */
-    public void removePlayer(Player player) {
-        playerList.remove(playerList.indexOf(player));
     }
 
     public int listContainsIgnoreCase(List<String> list, String str) {

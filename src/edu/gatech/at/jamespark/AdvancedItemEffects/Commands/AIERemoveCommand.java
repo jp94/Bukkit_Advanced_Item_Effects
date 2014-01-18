@@ -29,7 +29,8 @@ public class AIERemoveCommand implements CommandExecutor {
                 if ((player.hasPermission("AIE.remove")) || (player.isOp())) {
                     // TODO clean this up
                     if (player.getItemInHand().getItemMeta() == null) {
-                        player.sendMessage(ChatColor.RED + "You must be holding an item!");
+                        player.sendMessage(ChatColor.RED
+                                + "You must be holding an item!");
                         return false;
                     }
                     if (args.length > 0 && args.length < 3) {
@@ -51,7 +52,7 @@ public class AIERemoveCommand implements CommandExecutor {
                                         + "Magical unicorn has granted your wish.");
                                 // TODO
                                 effects.removeAllBoundEffects(player);
-                                effects.addAllBoundEffects(player, lore);
+                                effects.addArmorAndHeldItemEffects(player);
                                 return true;
                             } else {
                                 player.sendMessage(ChatColor.RED

@@ -16,6 +16,7 @@ import org.bukkit.inventory.ItemStack;
 
 import edu.gatech.at.jamespark.AdvancedItemEffects.Effects;
 
+// TODO Currently, methods using removeSingleItemEffects instead of addArmorAndHeldItemEffects have issues if an equipped item has same effects as an held item that has been removed.
 public class PlayerEventListener implements Listener {
 
     private Effects effects;
@@ -43,7 +44,7 @@ public class PlayerEventListener implements Listener {
             Player player = (Player) event.getPlayer();
 
             effects.removeAllBoundEffects(player);
-            applyArmorAndHeldEffects(player);
+            effects.addArmorAndHeldItemEffects(player);
         }
     }
 
@@ -78,7 +79,7 @@ public class PlayerEventListener implements Listener {
         if (heldItem != null && heldItem.getItemMeta().hasLore()) {
             List<String> heldItemLore = heldItem.getItemMeta().getLore();
             if (heldItemLore.contains(ChatColor.GOLD + "Effects:")) {
-                effects.addAllBoundEffects(player, heldItemLore);
+                effects.addAllItemEffects(player, heldItemLore);
             }
         }
     }
@@ -90,7 +91,7 @@ public class PlayerEventListener implements Listener {
         if (pickedItem.getItemMeta().hasLore()) {
             List<String> pickedItemLore = pickedItem.getItemMeta().getLore();
             if (pickedItemLore.contains(ChatColor.GOLD + "Effects:")) {
-                effects.addAllBoundEffects(player, pickedItemLore);
+                effects.addAllItemEffects(player, pickedItemLore);
             }
         }
     }
@@ -98,44 +99,12 @@ public class PlayerEventListener implements Listener {
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
-        applyArmorAndHeldEffects(player);
+        effects.addArmorAndHeldItemEffects(player);
     }
 
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
         Player player = event.getPlayer();
         effects.removeAllBoundEffects(player);
-    }
-
-    /**
-     * Adds armor and held item effects. DOES NOT REMOVE BUT ONLY ADDS EFFECTS.
-     * CHECK FOR DUPLICATE EFFECTS BY REMOVING EFFECTS PRIOR TO THIS HELPER
-     * METHOD.
-     * 
-     * @param player
-     *            Player receiving the effects
-     */
-    private void applyArmorAndHeldEffects(Player player) {
-        // Checks for equipped items effects
-        ItemStack[] armorList = player.getInventory().getArmorContents();
-        for (int x = 0; x < armorList.length; x++) {
-            if (armorList[x].hasItemMeta()
-                    && armorList[x].getItemMeta().hasLore()) {
-                List<String> equippedItemLore = armorList[x].getItemMeta()
-                        .getLore();
-                if (equippedItemLore.contains(ChatColor.GOLD + "Effects:")) {
-                    effects.addAllBoundEffects(player, equippedItemLore);
-                }
-            }
-        }
-
-        // Checks for item in hand effects
-        ItemStack heldItem = player.getItemInHand();
-        if (heldItem.hasItemMeta() && heldItem.getItemMeta().hasLore()) {
-            List<String> heldItemLore = heldItem.getItemMeta().getLore();
-            if (heldItemLore.contains(ChatColor.GOLD + "Effects:")) {
-                effects.addAllBoundEffects(player, heldItemLore);
-            }
-        }
     }
 }
