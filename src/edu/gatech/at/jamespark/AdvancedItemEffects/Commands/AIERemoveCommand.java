@@ -27,6 +27,11 @@ public class AIERemoveCommand implements CommandExecutor {
             Player player = (Player) sender;
             if (label.equalsIgnoreCase("AIEremove")) {
                 if ((player.hasPermission("AIE.remove")) || (player.isOp())) {
+                    // TODO clean this up
+                    if (player.getItemInHand().getItemMeta() == null) {
+                        player.sendMessage(ChatColor.RED + "You must be holding an item!");
+                        return false;
+                    }
                     if (args.length > 0 && args.length < 3) {
                         if ((effects.stringArrayContainsIgnoreCase(
                                 effects.potionEffectsList, args[0]))

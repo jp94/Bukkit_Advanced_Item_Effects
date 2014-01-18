@@ -5,17 +5,14 @@ author: jamespark@gatech.edu
 commands:
    AIEAdd:
       description: Add a special effect to an item.
-      usage: /<command> [effect] [multiplier]
       permission: AIE.add
       permission-message: You don't have permission in this world
    AIERemove:
       description: Remove a special effect from an item.
-      usage: /<command> [effect]
       permission: AIE.remove
       permission-message: You don't have permission in this world
    AIEClear:
       description: Removes all special effects from an item.
-      usage: /<command>
       permission: AIE.clear
       permission-message: You don't have permission in this world
 permissions:

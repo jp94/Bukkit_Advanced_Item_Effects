@@ -1,5 +1,6 @@
 package edu.gatech.at.jamespark.AdvancedItemEffects;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -10,6 +11,7 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
+// TODO check for "hasParticleEffectItem" it is no longer used.
 /**
  * Contains helper methods
  * 
@@ -30,17 +32,42 @@ public class Effects {
     public final String[] particleEffectsList = { "ENDER_SIGNAL",
             "MOBSPAWNER_FLAMES", "POTION_BREAK", "SMOKE" };
 
+    public ArrayList<Player> playerList = new ArrayList<>();
+
     public Effects(Plugin plugin) {
         this.plugin = plugin;
     }
 
     private void addItemPotionEffect(Player player, PotionEffectType type,
             int level) {
-
         player.addPotionEffect(new PotionEffect(type, 2147483647, level - 1,
                 false));
         player.setMetadata(type.toString(),
                 new FixedMetadataValue(plugin, true));
+    }
+
+    /**
+     * This method already checks if List is null.
+     * 
+     * @param player
+     * @param heldItemLore
+     */
+    public void addAllBoundItemParticleEffects(Player player,
+            List<String> heldItemLore) {
+        for (int x = 0; x < particleEffectsList.length; x++) {
+            int loreLineMatch = listContainsIgnoreCase(heldItemLore,
+                    particleEffectsList[x]);
+            if (loreLineMatch != -1) {
+                // TODO learn regex and fix this.
+                String[] effectSplit = heldItemLore.get(loreLineMatch)
+                        .replaceAll("\\s", "").split("¡×.");
+                if (!(playerList.contains(player))) {
+                    playerList.add(player);
+                }
+                player.setMetadata(effectSplit[1].toUpperCase(),
+                        new FixedMetadataValue(plugin, true));
+            }
+        }
     }
 
     public void addAllBoundItemPotionEffects(Player player,
@@ -63,25 +90,6 @@ public class Effects {
                                 multiplier);
                     }
                 }
-            }
-        }
-    }
-
-    public void addAllBoundItemParticleEffects(Player player,
-            List<String> heldItemLore) {
-        for (int x = 0; x < particleEffectsList.length; x++) {
-            int loreLineMatch = listContainsIgnoreCase(heldItemLore,
-                    particleEffectsList[x]);
-            if (loreLineMatch != -1) {
-                // TODO learn regex and fix this.
-                String[] effectSplit = heldItemLore.get(loreLineMatch)
-                        .replaceAll("\\s", "").split("¡×.");
-                if (!player.hasMetadata("hasParticleEffectItem")) {
-                    player.setMetadata("hasParticleEffectItem",
-                            new FixedMetadataValue(plugin, true));
-                }
-                player.setMetadata(effectSplit[1].toUpperCase(),
-                        new FixedMetadataValue(plugin, true));
             }
         }
     }
@@ -116,12 +124,12 @@ public class Effects {
 
     private void removeBoundItemParticleEffect(Player player, Effect type) {
         player.removeMetadata(type.toString(), plugin);
-        if (player.hasMetadata("hasParticleEffectItem")) {
-            player.removeMetadata("hasParticleEffectItem", plugin);
+        if (playerList.contains(player)) {
+            playerList.remove(player);
         }
     }
 
-    private void removeAllBoundItemParticleEffects(Player player) {
+    private void removeAllParticleEffects(Player player) {
         for (int x = 0; x < particleEffectsList.length; x++) {
             Effect effect = Effect.valueOf(particleEffectsList[x]);
             if (player.hasMetadata(effect.toString())) {
@@ -130,9 +138,73 @@ public class Effects {
         }
     }
 
+    /**
+     * Removes player effects listed in heldItemLore.
+     * 
+     * @param player
+     *            Player to remove effects
+     * @param heldItemLore
+     *            Lore of an item that contains effects list which will be
+     *            removed from player
+     */
+    public void removeSingleItemEffects(Player player, List<String> heldItemLore) {
+
+        for (int x = 0; x < particleEffectsList.length; x++) {
+            int loreLineMatch = listContainsIgnoreCase(heldItemLore,
+                    particleEffectsList[x]);
+            if (loreLineMatch != -1) {
+                Effect effect = Effect.valueOf(particleEffectsList[x]);
+                if (player.hasMetadata(effect.toString())) {
+                    removeBoundItemParticleEffect(player, effect);
+                }
+            }
+        }
+
+        for (int x = 0; x < potionEffectsList.length; x++) {
+            int loreLineMatch = listContainsIgnoreCase(heldItemLore,
+                    potionEffectsList[x]);
+            if (loreLineMatch != -1) {
+                PotionEffectType type = PotionEffectType
+                        .getByName(potionEffectsList[x]);
+                player.removeMetadata(type.toString(), plugin);
+                player.removePotionEffect(type);
+            }
+        }
+
+        player.removeMetadata("hasHeldItemEffects", plugin);
+    }
+
+    /**
+     * Removes all player's bound effects caused by this plugin.
+     * 
+     * @param player
+     *            Player to remove all active effects caused by this plugin.
+     */
     public void removeAllBoundEffects(Player player) {
-        removeAllBoundItemParticleEffects(player);
+        removeAllParticleEffects(player);
         removeAllBoundItemPotionEffects(player);
+    }
+
+    // TODO NOT USED
+    /**
+     * Adds a player to the playerList ArrayList.
+     * 
+     * @param player
+     *            Player to be added
+     */
+    public void addPlayer(Player player) {
+        playerList.add(player);
+    }
+
+    // TODO NOT USED
+    /**
+     * Removes a player from a playerList ArrayList.
+     * 
+     * @param player
+     *            Player to be removed
+     */
+    public void removePlayer(Player player) {
+        playerList.remove(playerList.indexOf(player));
     }
 
     public int listContainsIgnoreCase(List<String> list, String str) {

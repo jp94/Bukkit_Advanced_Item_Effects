@@ -13,7 +13,6 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 
 import edu.gatech.at.jamespark.AdvancedItemEffects.Effects;
 
@@ -21,53 +20,30 @@ public class PlayerEventListener implements Listener {
 
     private Effects effects;
 
-    // private boolean armorHasEffects = false;
-
     public PlayerEventListener(Effects effects) {
         this.effects = effects;
-    }
-
-    @EventHandler
-    public void onPlayerItemHeld(PlayerItemHeldEvent event) {
-        Player player = event.getPlayer();
-        ItemStack heldItem = player.getInventory().getItem(event.getNewSlot());
-        if (heldItem != null) {
-            List<String> heldItemLore = heldItem.getItemMeta().getLore();
-            if (heldItemLore != null
-                    && heldItemLore.contains(ChatColor.GOLD + "Effects:")) {
-                effects.removeAllBoundEffects(player);
-                effects.addAllBoundEffects(player, heldItemLore);
-            } else {
-                effects.removeAllBoundEffects(player);
-            }
-        } else {
-            effects.removeAllBoundEffects(player);
-        }
     }
 
     @EventHandler
     public void onPlayerDropItem(PlayerDropItemEvent event) {
         Player player = event.getPlayer();
         ItemStack droppedItem = event.getItemDrop().getItemStack();
-        List<String> droppedItemLore = event.getItemDrop().getItemStack()
-                .getItemMeta().getLore();
-        if (droppedItemLore != null
-                && droppedItemLore.contains(ChatColor.GOLD + "Effects:")
-                && (!player.getItemInHand().isSimilar(droppedItem))) {
-            effects.removeAllBoundEffects(player);
+        if (droppedItem.getItemMeta().hasLore()) {
+            List<String> droppedItemLore = droppedItem.getItemMeta().getLore();
+            if (droppedItemLore.contains(ChatColor.GOLD + "Effects:")
+                    && (!player.getItemInHand().isSimilar(droppedItem))) {
+                effects.removeSingleItemEffects(player, droppedItemLore);
+            }
         }
-
     }
 
     @EventHandler
-    public void onPlayerPickupItem(PlayerPickupItemEvent event) {
-        Player player = event.getPlayer();
-        List<String> pickedItemLore = event.getItem().getItemStack()
-                .getItemMeta().getLore();
+    public void onPlayerInventoryClose(InventoryCloseEvent event) {
+        if (event.getPlayer() instanceof Player) {
+            Player player = (Player) event.getPlayer();
 
-        if (pickedItemLore != null
-                && pickedItemLore.contains(ChatColor.GOLD + "Effects:")) {
-            effects.addAllBoundEffects(player, pickedItemLore);
+            effects.removeAllBoundEffects(player);
+            applyArmorAndHeldEffects(player);
         }
     }
 
@@ -75,12 +51,54 @@ public class PlayerEventListener implements Listener {
     @EventHandler
     public void onPlayerItemBreak(PlayerItemBreakEvent event) {
         Player player = event.getPlayer();
-        List<String> brokenItemLore = event.getBrokenItem().getItemMeta()
-                .getLore();
-        if (brokenItemLore != null
-                && brokenItemLore.contains(ChatColor.GOLD + "Effects:")) {
-            effects.removeAllBoundEffects(player);
+        if (event.getBrokenItem().getItemMeta().hasLore()) {
+            List<String> brokenItemLore = event.getBrokenItem().getItemMeta()
+                    .getLore();
+            if (brokenItemLore.contains(ChatColor.GOLD + "Effects:")) {
+                effects.removeSingleItemEffects(player, brokenItemLore);
+            }
         }
+    }
+
+    @EventHandler
+    public void onPlayerItemHeld(PlayerItemHeldEvent event) {
+        Player player = event.getPlayer();
+
+        ItemStack previousItem = player.getInventory().getItemInHand();
+        if (previousItem != null && previousItem.hasItemMeta()
+                && previousItem.getItemMeta().hasLore()) {
+            List<String> previousItemLore = previousItem.getItemMeta()
+                    .getLore();
+            if (previousItemLore.contains(ChatColor.GOLD + "Effects:")) {
+                effects.removeSingleItemEffects(player, previousItemLore);
+            }
+        }
+
+        ItemStack heldItem = player.getInventory().getItem(event.getNewSlot());
+        if (heldItem != null && heldItem.getItemMeta().hasLore()) {
+            List<String> heldItemLore = heldItem.getItemMeta().getLore();
+            if (heldItemLore.contains(ChatColor.GOLD + "Effects:")) {
+                effects.addAllBoundEffects(player, heldItemLore);
+            }
+        }
+    }
+
+    @EventHandler
+    public void onPlayerPickupItem(PlayerPickupItemEvent event) {
+        Player player = event.getPlayer();
+        ItemStack pickedItem = event.getItem().getItemStack();
+        if (pickedItem.getItemMeta().hasLore()) {
+            List<String> pickedItemLore = pickedItem.getItemMeta().getLore();
+            if (pickedItemLore.contains(ChatColor.GOLD + "Effects:")) {
+                effects.addAllBoundEffects(player, pickedItemLore);
+            }
+        }
+    }
+
+    @EventHandler
+    public void onPlayerJoin(PlayerJoinEvent event) {
+        Player player = event.getPlayer();
+        applyArmorAndHeldEffects(player);
     }
 
     @EventHandler
@@ -89,66 +107,35 @@ public class PlayerEventListener implements Listener {
         effects.removeAllBoundEffects(player);
     }
 
-    @EventHandler
-    public void onPlayerJoin(PlayerJoinEvent event) {
-        Player player = event.getPlayer();
-        ItemMeta itemMeta = player.getItemInHand().getItemMeta();
-        if (itemMeta != null && itemMeta.hasLore()) {
-            List<String> heldItemLore = player.getItemInHand().getItemMeta()
-                    .getLore();
-            if (!player.isDead()
-                    && heldItemLore.contains(ChatColor.GOLD + "Effects:")) {
-                effects.addAllBoundEffects(player, player.getItemInHand()
-                        .getItemMeta().getLore());
-            }
-        }
-    }
-
-    // TODO Create a helper method. Repeated code present in PlayerItemHeldEvent
-    // TODO Emergency bug update. Commented out things that aren't needed right
-    // now.
-    @EventHandler
-    public void onPlayerInventoryClose(InventoryCloseEvent event) {
-
-        if (event.getPlayer() instanceof Player) {
-            Player player = (Player) event.getPlayer();
-            // ItemStack[] armorList = player.getInventory().getArmorContents();
-
-            // TODO THIS IS EDITED. FIX IT BACK LATER
-            // Checks for armor effects
-            // for (int x = 0; x < armorList.length; x++) {
-            // ItemMeta itemMeta = armorList[x].getItemMeta();
-            // if (itemMeta != null && event.getWhoClicked() instanceof Player)
-            // {
-            // List<String> equippedItemLore = armorList[x].getItemMeta()
-            // .getLore();
-            // if (equippedItemLore != null
-            // && equippedItemLore.contains(ChatColor.GOLD
-            // + "Effects:")) {
-            // effects.removeAllBoundEffects(player);
-            // effects.addAllBoundEffects(player, equippedItemLore);
-            // }
-            // }
-            // }
-            // Checks for item in hand effects
-            ItemStack heldItem = player.getItemInHand();
-            if (heldItem.getItemMeta() != null
-                    && heldItem.getItemMeta().getLore() != null) {
-                List<String> heldItemLore = heldItem.getItemMeta().getLore();
-                // System.out.println("Updated Item (should not have any items): "
-                // + heldItem.toString());
-                if (heldItemLore != null
-                        && heldItemLore.contains(ChatColor.GOLD + "Effects:")) {
-                    effects.removeAllBoundEffects(player);
-                    effects.addAllBoundEffects(player, heldItemLore);
-                } else {
-                    effects.removeAllBoundEffects(player);
+    /**
+     * Adds armor and held item effects. DOES NOT REMOVE BUT ONLY ADDS EFFECTS.
+     * CHECK FOR DUPLICATE EFFECTS BY REMOVING EFFECTS PRIOR TO THIS HELPER
+     * METHOD.
+     * 
+     * @param player
+     *            Player receiving the effects
+     */
+    private void applyArmorAndHeldEffects(Player player) {
+        // Checks for equipped items effects
+        ItemStack[] armorList = player.getInventory().getArmorContents();
+        for (int x = 0; x < armorList.length; x++) {
+            if (armorList[x].hasItemMeta()
+                    && armorList[x].getItemMeta().hasLore()) {
+                List<String> equippedItemLore = armorList[x].getItemMeta()
+                        .getLore();
+                if (equippedItemLore.contains(ChatColor.GOLD + "Effects:")) {
+                    effects.addAllBoundEffects(player, equippedItemLore);
                 }
-                // effects.addAllBoundEffects(player, heldItemLore);
-            } else {
-                effects.removeAllBoundEffects(player);
+            }
+        }
+
+        // Checks for item in hand effects
+        ItemStack heldItem = player.getItemInHand();
+        if (heldItem.hasItemMeta() && heldItem.getItemMeta().hasLore()) {
+            List<String> heldItemLore = heldItem.getItemMeta().getLore();
+            if (heldItemLore.contains(ChatColor.GOLD + "Effects:")) {
+                effects.addAllBoundEffects(player, heldItemLore);
             }
         }
     }
-
 }

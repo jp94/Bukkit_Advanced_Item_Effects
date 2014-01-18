@@ -28,6 +28,12 @@ public class AIEAddCommand implements CommandExecutor {
             Player player = (Player) sender;
             if (label.equalsIgnoreCase("aieadd")) {
                 if ((player.hasPermission("AIE.add")) || (player.isOp())) {
+                    // TODO clean this up
+                    if (player.getItemInHand().getItemMeta() == null) {
+                        player.sendMessage(ChatColor.RED
+                                + "You must be holding an item!");
+                        return false;
+                    }
                     if (args.length > 1) {
                         if (effects.stringArrayContainsIgnoreCase(
                                 effects.potionEffectsList, args[0])) {

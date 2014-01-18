@@ -27,6 +27,12 @@ public class AIEClearCommand implements CommandExecutor {
             Player player = (Player) sender;
             if (label.equalsIgnoreCase("AIEClear")) {
                 if ((player.hasPermission("AIE.clear")) || (player.isOp())) {
+                    // TODO clean this up
+                    if (player.getItemInHand().getItemMeta() == null) {
+                        player.sendMessage(ChatColor.RED
+                                + "You must be holding an item!");
+                        return false;
+                    }
                     ItemStack item = player.getItemInHand();
                     ItemMeta itemMeta = item.getItemMeta();
                     List<String> lore = itemMeta.getLore();
