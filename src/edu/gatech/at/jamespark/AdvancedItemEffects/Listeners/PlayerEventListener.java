@@ -16,7 +16,7 @@ import org.bukkit.inventory.ItemStack;
 
 import edu.gatech.at.jamespark.AdvancedItemEffects.Effects;
 
-// TODO Currently, methods using removeSingleItemEffects instead of addArmorAndHeldItemEffects have issues if an equipped item has same effects as an held item that has been removed.
+// TODO Methods using removeSingleItemEffects instead of addArmorAndHeldItemEffects have issues if an equipped item has one of the same effects as an held item that has been removed.
 public class PlayerEventListener implements Listener {
 
     private Effects effects;

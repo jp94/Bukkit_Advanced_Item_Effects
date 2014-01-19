@@ -1,5 +1,5 @@
 name: Advanced Item Effects
-version: 2.0
+version: 1.3.0
 main: edu.gatech.at.jamespark.AdvancedItemEffects.Main
 author: jamespark@gatech.edu
 commands:
