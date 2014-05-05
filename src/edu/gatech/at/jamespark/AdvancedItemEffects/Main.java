@@ -24,11 +24,7 @@ public class Main extends JavaPlugin {
         getCommand("aieclear").setExecutor(new AIEClearCommand(effects));
         particleScheduler = new ParticleScheduler(effects);
         particleScheduler.runTaskTimer(this, 0, 60);
-
-        // Initialize Updater 2.1
-        // http://forums.bukkit.org/threads/updater-2-1-easy-safe-and-policy-compliant-auto-updating-for-your-plugins-new.96681/
-        Updater updater = new Updater(this, 71723, this.getFile(),
-                Updater.UpdateType.DEFAULT, true);
+        // this.saveDefaultConfig();
     }
 
     @Override
