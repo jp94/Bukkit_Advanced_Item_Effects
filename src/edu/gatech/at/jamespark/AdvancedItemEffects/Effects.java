@@ -53,7 +53,6 @@ public class Effects {
             int loreLineMatch = listContainsIgnoreCase(heldItemLore,
                     particleEffectsList[x]);
             if (loreLineMatch != -1) {
-                // TODO learn regex and fix this.
                 String[] effectSplit = heldItemLore.get(loreLineMatch)
                         .replaceAll("\\s", "").split("¡×.");
                 if (!(playerList.contains(player))) {
@@ -221,9 +220,10 @@ public class Effects {
 
     public int listContainsIgnoreCase(List<String> list, String str) {
         Iterator<String> iter = list.iterator();
+
         int line = 0;
         while (iter.hasNext()) {
-            if (iter.next().toLowerCase().contains(str.toLowerCase())) {
+            if (iter.next().toUpperCase().contains(str.toUpperCase())) {
                 return line;
             }
             line++;

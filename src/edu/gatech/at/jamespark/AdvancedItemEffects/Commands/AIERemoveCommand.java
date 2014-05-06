@@ -23,64 +23,67 @@ public class AIERemoveCommand implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command,
             String label, String[] args) {
-        if (sender instanceof Player) {
+        // Prevent executing from server console.
+        if (!(sender instanceof Player)) {
+            sender.sendMessage(ChatColor.RED
+                    + "Must execute this command as a player.");
+            return false;
+        }
+
+        // Command: aieremove
+        if (label.equalsIgnoreCase("aieremove")) {
+
             Player player = (Player) sender;
-            if (label.equalsIgnoreCase("AIEremove")) {
-                if ((player.hasPermission("AIE.remove")) || (player.isOp())) {
-                    // TODO clean this up
-                    if (player.getItemInHand().getItemMeta() == null) {
-                        player.sendMessage(ChatColor.RED
-                                + "You must be holding an item!");
-                        return false;
-                    }
-                    if (args.length > 0 && args.length < 3) {
-                        if ((effects.stringArrayContainsIgnoreCase(
-                                effects.potionEffectsList, args[0]))
-                                || effects.stringArrayContainsIgnoreCase(
-                                        effects.particleEffectsList, args[0])) {
-                            ItemStack item = player.getItemInHand();
-                            ItemMeta itemMeta = item.getItemMeta();
-                            List<String> lore = itemMeta.getLore();
-                            if (lore != null
-                                    && (lore.contains(ChatColor.GOLD
-                                            + "Effects:"))) {
-                                lore.remove(effects.listContainsIgnoreCase(
-                                        lore, args[0]));
-                                itemMeta.setLore(lore);
-                                item.setItemMeta(itemMeta);
-                                player.sendMessage(ChatColor.AQUA
-                                        + "Magical unicorn has granted your wish.");
-                                // TODO
-                                effects.removeAllBoundEffects(player);
-                                effects.addArmorAndHeldItemEffects(player);
-                                return true;
-                            } else {
-                                player.sendMessage(ChatColor.RED
-                                        + "There is no " + args[0]
-                                        + " effect to remove.");
-                                return false;
-                            }
-                        } else {
-                            player.sendMessage(ChatColor.RED
-                                    + "Wrong effect type");
-                            return false;
-                        }
-                    } else {
-                        String[] missingArgs = {
-                                ChatColor.RED + "Incomplete command input.",
-                                ChatColor.RED + "/aieremove [effect]" };
-                        player.sendMessage(missingArgs);
-                        return false;
-                    }
+
+            // Check necessary cases.
+            if ((!player.hasPermission("AIE.remove")) && (!player.isOp())) {
+                player.sendMessage(player.getDisplayName() + ChatColor.YELLOW
+                        + " lacks \"AIE.remove\" permission.");
+                return false;
+            }
+
+            if (player.getItemInHand().getItemMeta() == null) {
+                player.sendMessage(ChatColor.RED
+                        + "You must be holding an item!");
+                return false;
+            }
+
+            if (args.length < 1 || args.length > 2) {
+                String[] missingArgs = {
+                        ChatColor.RED + "Incomplete command input.",
+                        ChatColor.RED + "/aieremove [effect]" };
+                player.sendMessage(missingArgs);
+                return false;
+            }
+
+            if ((!effects.stringArrayContainsIgnoreCase(
+                    effects.potionEffectsList, args[0]))
+                    && !effects.stringArrayContainsIgnoreCase(
+                            effects.particleEffectsList, args[0])) {
+                player.sendMessage(ChatColor.RED + "Wrong effect type");
+                return false;
+            }
+
+            ItemStack item = player.getItemInHand();
+            ItemMeta itemMeta = item.getItemMeta();
+            List<String> lore = itemMeta.getLore();
+
+            if (lore != null && (lore.contains(ChatColor.GOLD + "Effects:"))) {
+                if (lore.size() == 2) {
+                    lore = null;
                 } else {
-                    player.sendMessage(player.getDisplayName()
-                            + ChatColor.YELLOW
-                            + " lacks \"AIE.remove\" permission.");
-                    return false;
+                    lore.remove(effects.listContainsIgnoreCase(lore, args[0]));
                 }
+                itemMeta.setLore(lore);
+                item.setItemMeta(itemMeta);
+                player.sendMessage(ChatColor.AQUA
+                        + "An effect has been removed.");
+                effects.removeAllBoundEffects(player);
+                effects.addArmorAndHeldItemEffects(player);
+                return true;
             } else {
-                sender.sendMessage(ChatColor.RED
-                        + "Must execute this command as a player.");
+                player.sendMessage(ChatColor.RED + "There is no " + args[0]
+                        + " effect to remove.");
                 return false;
             }
         }

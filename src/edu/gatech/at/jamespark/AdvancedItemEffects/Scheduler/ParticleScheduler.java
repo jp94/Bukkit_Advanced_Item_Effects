@@ -16,7 +16,11 @@ public class ParticleScheduler extends BukkitRunnable {
 
     @Override
     public void run() {
+
+        // Checking players with effects. More efficient than without this
+        // check.
         for (Player player : effects.playerList) {
+            
             for (int x = 0; x < effects.particleEffectsList.length; x++) {
                 String particleEffect = effects.particleEffectsList[x];
                 if (player.hasMetadata(particleEffect)) {
