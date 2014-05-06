@@ -134,6 +134,20 @@ public class Effects {
         }
     }
 
+    public void addArmorItemEffects(Player player) {
+        ItemStack[] armorList = player.getInventory().getArmorContents();
+        for (int x = 0; x < armorList.length; x++) {
+            if (armorList[x].hasItemMeta()
+                    && armorList[x].getItemMeta().hasLore()) {
+                List<String> equippedItemLore = armorList[x].getItemMeta()
+                        .getLore();
+                if (equippedItemLore.contains(ChatColor.GOLD + "Effects:")) {
+                    addAllItemEffects(player, equippedItemLore);
+                }
+            }
+        }
+    }
+
     private void removeItemPotionEffect(Player player, PotionEffectType type) {
         player.removeMetadata(type.toString(), plugin);
         player.removePotionEffect(type);

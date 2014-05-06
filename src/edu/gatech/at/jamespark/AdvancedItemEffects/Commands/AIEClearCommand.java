@@ -65,6 +65,7 @@ public class AIEClearCommand implements CommandExecutor {
                 player.sendMessage(ChatColor.AQUA
                         + "All effects have been removed.");
                 effects.removeAllBoundEffects(player);
+                effects.addArmorItemEffects(player);
                 return true;
 
             } else {

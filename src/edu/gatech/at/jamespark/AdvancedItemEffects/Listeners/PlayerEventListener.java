@@ -6,6 +6,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerItemBreakEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
@@ -16,7 +17,6 @@ import org.bukkit.inventory.ItemStack;
 
 import edu.gatech.at.jamespark.AdvancedItemEffects.Effects;
 
-// TODO Methods using removeSingleItemEffects instead of addArmorAndHeldItemEffects have issues if an equipped item has one of the same effects as an held item that has been removed.
 public class PlayerEventListener implements Listener {
 
     private Effects effects;
@@ -33,7 +33,8 @@ public class PlayerEventListener implements Listener {
             List<String> droppedItemLore = droppedItem.getItemMeta().getLore();
             if (droppedItemLore.contains(ChatColor.GOLD + "Effects:")
                     && (!player.getItemInHand().isSimilar(droppedItem))) {
-                effects.removeSingleItemEffects(player, droppedItemLore);
+                effects.removeAllBoundEffects(player);
+                effects.addArmorItemEffects(player);
             }
         }
     }
@@ -47,6 +48,11 @@ public class PlayerEventListener implements Listener {
             effects.addArmorAndHeldItemEffects(player);
         }
     }
+    
+    @EventHandler
+    public void onInventoryDragEventt(InventoryDragEvent event) {
+        System.out.println(event.getWhoClicked().getName());
+    }
 
     // TODO This hasn't been actually tested yet in-game.
     @EventHandler
@@ -56,7 +62,8 @@ public class PlayerEventListener implements Listener {
             List<String> brokenItemLore = event.getBrokenItem().getItemMeta()
                     .getLore();
             if (brokenItemLore.contains(ChatColor.GOLD + "Effects:")) {
-                effects.removeSingleItemEffects(player, brokenItemLore);
+                effects.removeAllBoundEffects(player);
+                effects.addArmorItemEffects(player);
             }
         }
     }
@@ -72,6 +79,7 @@ public class PlayerEventListener implements Listener {
                     .getLore();
             if (previousItemLore.contains(ChatColor.GOLD + "Effects:")) {
                 effects.removeSingleItemEffects(player, previousItemLore);
+                effects.addArmorItemEffects(player);
             }
         }
 
