@@ -1,0 +1,7 @@
+#Toggle (true/false)
+addEffects:
+  equip: true
+  #if 'inventory' is set to true, it will override 'held' even if 'held' is set to false
+  inventory: false
+  held: true
+  

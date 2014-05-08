@@ -79,7 +79,7 @@ public class AIERemoveCommand implements CommandExecutor {
                 player.sendMessage(ChatColor.AQUA
                         + "An effect has been removed.");
                 effects.removeAllBoundEffects(player);
-                effects.addArmorAndHeldItemEffects(player);
+                effects.addItemEffects(player, true, true, true);
                 return true;
             } else {
                 player.sendMessage(ChatColor.RED + "There is no " + args[0]

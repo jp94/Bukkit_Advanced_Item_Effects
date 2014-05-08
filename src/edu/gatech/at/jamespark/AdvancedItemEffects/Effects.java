@@ -13,6 +13,7 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
+// TODO Better organization & javadoc
 /**
  * Contains helper methods
  * 
@@ -39,12 +40,82 @@ public class Effects {
         this.plugin = plugin;
     }
 
-    private void addItemPotionEffect(Player player, PotionEffectType type,
-            int level) {
-        player.addPotionEffect(new PotionEffect(type, 2147483647, level - 1,
-                false));
-        player.setMetadata(type.toString(),
-                new FixedMetadataValue(plugin, true));
+    // ********************************************************************************************//
+    // Effect add methods
+    // ********************************************************************************************//
+
+    /**
+     * Adds all item effects. Uses config file.
+     * 
+     * @param player
+     *            Player to add all active effects listed in items' lore.
+     * 
+     */
+    public void addItemEffects(Player player, boolean addArmor,
+            boolean addInventory, boolean addHeld, List<String> itemLore) {
+        // Checks for equipped items effects
+        if (addArmor && plugin.getConfig().getBoolean("addEffects.equip")) {
+            ItemStack[] armorList = player.getInventory().getArmorContents();
+            for (int x = 0; x < armorList.length; x++) {
+                if (armorList[x] != null && armorList[x].hasItemMeta()
+                        && armorList[x].getItemMeta().hasLore()) {
+                    List<String> equippedItemLore = armorList[x].getItemMeta()
+                            .getLore();
+                    if (equippedItemLore.contains(ChatColor.GOLD + "Effects:")) {
+                        addAllItemEffects(player, equippedItemLore);
+                    }
+                }
+            }
+        }
+        // Checks for items effects in inventory
+        if (addInventory
+                && plugin.getConfig().getBoolean("addEffects.inventory")) {
+
+            // NOTE: This check is explicitly for onPlayerPickupItem
+            if (itemLore != null
+                    && itemLore.contains(ChatColor.GOLD + "Effects:")) {
+                addAllItemEffects(player, itemLore);
+
+            } else {
+                ItemStack[] invList = player.getInventory().getContents();
+                for (int x = 0; x < invList.length; x++) {
+                    if (invList[x] != null && invList[x].hasItemMeta()
+                            && invList[x].getItemMeta().hasLore()) {
+                        List<String> inventoryItemLore = invList[x]
+                                .getItemMeta().getLore();
+                        if (inventoryItemLore.contains(ChatColor.GOLD
+                                + "Effects:")) {
+                            addAllItemEffects(player, inventoryItemLore);
+                        }
+                    }
+                }
+            }
+            // Checks for item in hand effects
+        } else if (addHeld && plugin.getConfig().getBoolean("addEffects.held")) {
+
+            // Some events' getItemStack() do not match getItem
+            // Checking amount of 0 was the closest workaround I was able to
+            // come up with
+            if (player.getItemInHand().getAmount() == 0 && itemLore != null
+                    && itemLore.contains(ChatColor.GOLD + "Effects:")) {
+                addAllItemEffects(player, itemLore);
+
+            } else {
+                ItemStack heldItem = player.getItemInHand();
+                if (heldItem.hasItemMeta() && heldItem.getItemMeta().hasLore()) {
+                    List<String> heldItemLore = heldItem.getItemMeta()
+                            .getLore();
+                    if (heldItemLore.contains(ChatColor.GOLD + "Effects:")) {
+                        addAllItemEffects(player, heldItemLore);
+                    }
+                }
+            }
+        }
+    }
+
+    public void addItemEffects(Player player, boolean addArmor,
+            boolean addInventory, boolean addHeld) {
+        addItemEffects(player, addArmor, addInventory, addHeld, null);
     }
 
     public void addAllBoundItemParticleEffects(Player player,
@@ -88,6 +159,25 @@ public class Effects {
         }
     }
 
+    // ********************************************************************************************//
+    // Effect remove methods
+    // ********************************************************************************************//
+
+    /**
+     * Removes all player's bound effects caused by this plugin.
+     * 
+     * @param player
+     *            Player to remove all active effects caused by this plugin.
+     */
+    public void removeAllBoundEffects(Player player) {
+        removeAllParticleEffects(player);
+        removeAllBoundItemPotionEffects(player);
+    }
+
+    // ********************************************************************************************//
+    // Private helper methods
+    // ********************************************************************************************//
+
     /**
      * Adds all particle and potion effects given a specific item's lore.
      * 
@@ -97,55 +187,17 @@ public class Effects {
      *            Lore that contains effects list to add listed effects to a
      *            player.
      */
-    public void addAllItemEffects(Player player, List<String> itemLore) {
+    private void addItemPotionEffect(Player player, PotionEffectType type,
+            int level) {
+        player.addPotionEffect(new PotionEffect(type, 2147483647, level - 1,
+                false));
+        player.setMetadata(type.toString(),
+                new FixedMetadataValue(plugin, true));
+    }
+
+    private void addAllItemEffects(Player player, List<String> itemLore) {
         addAllBoundItemParticleEffects(player, itemLore);
         addAllBoundItemPotionEffects(player, itemLore);
-    }
-
-    /**
-     * Adds armor and held item effects. DOES NOT REMOVE BUT ONLY ADDS EFFECTS.
-     * CHECK FOR DUPLICATE EFFECTS BY REMOVING EFFECTS PRIOR TO THIS HELPER
-     * METHOD.
-     * 
-     * @param player
-     *            Player to add all active effects listed in items' lore.
-     */
-    public void addArmorAndHeldItemEffects(Player player) {
-        // Checks for equipped items effects
-        ItemStack[] armorList = player.getInventory().getArmorContents();
-        for (int x = 0; x < armorList.length; x++) {
-            if (armorList[x].hasItemMeta()
-                    && armorList[x].getItemMeta().hasLore()) {
-                List<String> equippedItemLore = armorList[x].getItemMeta()
-                        .getLore();
-                if (equippedItemLore.contains(ChatColor.GOLD + "Effects:")) {
-                    addAllItemEffects(player, equippedItemLore);
-                }
-            }
-        }
-
-        // Checks for item in hand effects
-        ItemStack heldItem = player.getItemInHand();
-        if (heldItem.hasItemMeta() && heldItem.getItemMeta().hasLore()) {
-            List<String> heldItemLore = heldItem.getItemMeta().getLore();
-            if (heldItemLore.contains(ChatColor.GOLD + "Effects:")) {
-                addAllItemEffects(player, heldItemLore);
-            }
-        }
-    }
-
-    public void addArmorItemEffects(Player player) {
-        ItemStack[] armorList = player.getInventory().getArmorContents();
-        for (int x = 0; x < armorList.length; x++) {
-            if (armorList[x].hasItemMeta()
-                    && armorList[x].getItemMeta().hasLore()) {
-                List<String> equippedItemLore = armorList[x].getItemMeta()
-                        .getLore();
-                if (equippedItemLore.contains(ChatColor.GOLD + "Effects:")) {
-                    addAllItemEffects(player, equippedItemLore);
-                }
-            }
-        }
     }
 
     private void removeItemPotionEffect(Player player, PotionEffectType type) {
@@ -161,7 +213,7 @@ public class Effects {
      * @param player
      *            Player to remove all potion effects bound in metadata
      */
-    public void removeAllBoundItemPotionEffects(Player player) {
+    private void removeAllBoundItemPotionEffects(Player player) {
         for (int x = 0; x < potionEffectsList.length; x++) {
             PotionEffectType potionEffectType = PotionEffectType
                     .getByName(potionEffectsList[x]);
@@ -187,50 +239,9 @@ public class Effects {
         }
     }
 
-    /**
-     * Removes player effects listed in heldItemLore.
-     * 
-     * @param player
-     *            Player to remove effects
-     * @param heldItemLore
-     *            Lore of an item that contains effects list which will be
-     *            removed from player
-     */
-    public void removeSingleItemEffects(Player player, List<String> heldItemLore) {
-
-        for (int x = 0; x < particleEffectsList.length; x++) {
-            int loreLineMatch = listContainsIgnoreCase(heldItemLore,
-                    particleEffectsList[x]);
-            if (loreLineMatch != -1) {
-                Effect effect = Effect.valueOf(particleEffectsList[x]);
-                if (player.hasMetadata(effect.toString())) {
-                    removeBoundItemParticleEffect(player, effect);
-                }
-            }
-        }
-
-        for (int x = 0; x < potionEffectsList.length; x++) {
-            int loreLineMatch = listContainsIgnoreCase(heldItemLore,
-                    potionEffectsList[x]);
-            if (loreLineMatch != -1) {
-                PotionEffectType type = PotionEffectType
-                        .getByName(potionEffectsList[x]);
-                player.removeMetadata(type.toString(), plugin);
-                player.removePotionEffect(type);
-            }
-        }
-    }
-
-    /**
-     * Removes all player's bound effects caused by this plugin.
-     * 
-     * @param player
-     *            Player to remove all active effects caused by this plugin.
-     */
-    public void removeAllBoundEffects(Player player) {
-        removeAllParticleEffects(player);
-        removeAllBoundItemPotionEffects(player);
-    }
+    // ********************************************************************************************//
+    // Remaining methods
+    // ********************************************************************************************//
 
     public int listContainsIgnoreCase(List<String> list, String str) {
         Iterator<String> iter = list.iterator();
