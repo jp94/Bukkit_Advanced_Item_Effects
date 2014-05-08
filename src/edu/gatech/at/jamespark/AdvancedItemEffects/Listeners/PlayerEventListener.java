@@ -107,7 +107,6 @@ public class PlayerEventListener implements Listener {
     public void onPlayerPickupItem(PlayerPickupItemEvent event) {
         Player player = event.getPlayer();
         ItemStack pickedItem = event.getItem().getItemStack();
-        System.out.println("MM"+event.getPlayer().getItemInHand().getData());
         if (pickedItem.getItemMeta().hasLore()) {
             List<String> pickedItemLore = pickedItem.getItemMeta().getLore();
             if (pickedItemLore.contains(ChatColor.GOLD + "Effects:")) {
