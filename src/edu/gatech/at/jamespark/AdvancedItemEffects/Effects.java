@@ -71,7 +71,7 @@ public class Effects {
         if (addInventory
                 && plugin.getConfig().getBoolean("addEffects.inventory")) {
 
-            // NOTE: This check is explicitly for onPlayerPickupItem
+            // NOTE: This check is explicitly for PlayerItemHeldEvent
             if (itemLore != null
                     && itemLore.contains(ChatColor.GOLD + "Effects:")) {
                 addAllItemEffects(player, itemLore);
@@ -96,7 +96,7 @@ public class Effects {
             // Some events' getItemStack() do not match getItem
             // Checking amount of 0 was the closest workaround I was able to
             // come up with
-            if (player.getItemInHand().getAmount() == 0 && itemLore != null
+            if (itemLore != null
                     && itemLore.contains(ChatColor.GOLD + "Effects:")) {
                 addAllItemEffects(player, itemLore);
 

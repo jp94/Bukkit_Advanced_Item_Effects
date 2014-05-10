@@ -14,15 +14,19 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.plugin.Plugin;
+import org.bukkit.scheduler.BukkitScheduler;
 
 import edu.gatech.at.jamespark.AdvancedItemEffects.Effects;
 
 public class PlayerEventListener implements Listener {
 
     private Effects effects;
+    private Plugin plugin;
 
-    public PlayerEventListener(Effects effects) {
+    public PlayerEventListener(Effects effects, Plugin plugin) {
         this.effects = effects;
+        this.plugin = plugin;
     }
 
     @EventHandler
@@ -42,7 +46,6 @@ public class PlayerEventListener implements Listener {
         }
     }
 
-    // TODO Not very efficient. Wait on bukkit update.
     @EventHandler
     public void onPlayerInventoryClose(InventoryCloseEvent event) {
         if (event.getPlayer() instanceof Player) {
@@ -102,16 +105,24 @@ public class PlayerEventListener implements Listener {
     }
 
     // NOTE: This event.getItem().getItemStack() does not match with
-    // player.getItemInHand()
+    // player.getItemInHand(). Therefore, I have added a delayed scheduler.
+    // On a very laggy server, this may cause potential problems; however it is
+    // very unlikely.
     @EventHandler
     public void onPlayerPickupItem(PlayerPickupItemEvent event) {
-        Player player = event.getPlayer();
+
+        final Player player = event.getPlayer();
         ItemStack pickedItem = event.getItem().getItemStack();
         if (pickedItem.getItemMeta().hasLore()) {
             List<String> pickedItemLore = pickedItem.getItemMeta().getLore();
             if (pickedItemLore.contains(ChatColor.GOLD + "Effects:")) {
-                effects.addItemEffects(player, false, true, true,
-                        pickedItemLore);
+                BukkitScheduler scheduler = plugin.getServer().getScheduler();
+                scheduler.scheduleSyncDelayedTask(plugin, new Runnable() {
+                    @Override
+                    public void run() {
+                        effects.addItemEffects(player, false, true, true);
+                    }
+                }, 1L);
             }
         }
     }
