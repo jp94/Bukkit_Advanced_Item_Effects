@@ -28,6 +28,6 @@ Permission Reference
 	*	**description**: Remove all special effects from an item
 	*	**default**: op
 
-More information
+More Information
 ==============================
 http://dev.bukkit.org/bukkit-plugins/advanced-item-effects/
