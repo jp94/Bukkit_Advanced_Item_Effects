@@ -27,3 +27,7 @@ Permission Reference
 *	**AIE.clear**:
 	*	**description**: Remove all special effects from an item
 	*	**default**: op
+
+More information
+==============================
+http://dev.bukkit.org/bukkit-plugins/advanced-item-effects/
