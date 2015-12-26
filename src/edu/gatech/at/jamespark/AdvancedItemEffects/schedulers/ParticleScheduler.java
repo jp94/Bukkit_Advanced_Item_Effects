@@ -1,10 +1,11 @@
-package edu.gatech.at.jamespark.AdvancedItemEffects.Scheduler;
+package edu.gatech.at.jamespark.AdvancedItemEffects.schedulers;
 
+import edu.gatech.at.jamespark.AdvancedItemEffects.Effects;
 import org.bukkit.Effect;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import edu.gatech.at.jamespark.AdvancedItemEffects.Effects;
+import java.util.ArrayList;
 
 public class ParticleScheduler extends BukkitRunnable {
 
@@ -18,13 +19,12 @@ public class ParticleScheduler extends BukkitRunnable {
     public void run() {
 
         for (Player player : effects.playerList) {
-            for (int x = 0; x < effects.particleEffectsList.length; x++) {
-                String particleEffect = effects.particleEffectsList[x];
+            for (String particleEffect : (ArrayList<String>) player.getMetadata(effects.PARTICLE_KEY).get(0).value()) {
                 if (player.hasMetadata(particleEffect)) {
                     player.getWorld()
                             .playEffect(
                                     player.getLocation(),
-                                    Effect.valueOf(particleEffect.toUpperCase()),
+                                    Effect.valueOf(particleEffect), // @TODO removed toUpperCase() on particleEffect
                                     7, 40);
                 }
             }

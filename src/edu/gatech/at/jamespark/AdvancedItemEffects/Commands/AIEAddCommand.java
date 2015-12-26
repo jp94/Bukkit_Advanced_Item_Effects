@@ -1,8 +1,6 @@
-package edu.gatech.at.jamespark.AdvancedItemEffects.Commands;
+package edu.gatech.at.jamespark.AdvancedItemEffects.commands;
 
-import java.util.Arrays;
-import java.util.List;
-
+import edu.gatech.at.jamespark.AdvancedItemEffects.Effects;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -11,7 +9,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import edu.gatech.at.jamespark.AdvancedItemEffects.Effects;
+import java.util.Arrays;
+import java.util.List;
 
 public class AIEAddCommand implements CommandExecutor {
 
@@ -23,7 +22,7 @@ public class AIEAddCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command,
-            String label, String[] args) {
+                             String label, String[] args) {
 
         // Prevent executing from server console.
         if (!(sender instanceof Player)) {
@@ -54,7 +53,7 @@ public class AIEAddCommand implements CommandExecutor {
                 String[] missingArgs = {
                         ChatColor.RED + "Incomplete command input.",
                         ChatColor.RED + "/aieadd [potion effect] [multiplier]",
-                        ChatColor.RED + "/aieadd [particle effect]" };
+                        ChatColor.RED + "/aieadd [particle effect]"};
                 player.sendMessage(missingArgs);
                 return false;
             }
@@ -76,7 +75,7 @@ public class AIEAddCommand implements CommandExecutor {
                 // Checks for valid [multiplier]
                 try {
                     int checkIfInt = Integer.parseInt(args[1]);
-                    if (checkIfInt < 1 || checkIfInt > 2147483647) {
+                    if (checkIfInt < 1) {
                         player.sendMessage("Multiplier must be between 1 and 2147483647.");
                         return false;
                     }

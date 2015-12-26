@@ -1,7 +1,6 @@
-package edu.gatech.at.jamespark.AdvancedItemEffects.Commands;
+package edu.gatech.at.jamespark.AdvancedItemEffects.commands;
 
-import java.util.List;
-
+import edu.gatech.at.jamespark.AdvancedItemEffects.Effects;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -10,7 +9,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import edu.gatech.at.jamespark.AdvancedItemEffects.Effects;
+import java.util.List;
 
 public class AIEClearCommand implements CommandExecutor {
 
@@ -22,7 +21,7 @@ public class AIEClearCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command,
-            String label, String[] args) {
+                             String label, String[] args) {
 
         // Prevent executing from server console.
         if (!(sender instanceof Player)) {

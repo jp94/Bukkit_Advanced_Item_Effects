@@ -1,0 +1,35 @@
+name: Advanced Item Effects
+version: 1.4.2
+main: edu.gatech.at.jamespark.AdvancedItemEffects.Main
+author: jamespark@gatech.edu
+website: http://fluf.me
+
+commands:
+  AIEAdd:
+    description: Add a special effect to an item.
+    permission: AIE.add
+    permission-message: You don't have permission in this world
+  AIERemove:
+    description: Remove a special effect from an item.
+    permission: AIE.remove
+    permission-message: You don't have permission in this world
+  AIEClear:
+    description: Removes all special effects from an item.
+    permission: AIE.clear
+    permission-message: You don't have permission in this world
+permissions:
+  AIE.*:
+    description: Gives access to all AIE perms.
+    children:
+      AIE.add: true
+      AIE.remove: true
+      AIE.clear: true
+  AIE.add:
+    description: Add a special effect to an item
+    default: op
+  AIE.remove:
+    description: Remove a special effect from an item
+    default: op
+  AIE.clear:
+    description: Remove all special effects from an item
+    default: op

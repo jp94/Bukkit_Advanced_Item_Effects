@@ -1,7 +1,6 @@
-package edu.gatech.at.jamespark.AdvancedItemEffects.Commands;
+package edu.gatech.at.jamespark.AdvancedItemEffects.commands;
 
-import java.util.List;
-
+import edu.gatech.at.jamespark.AdvancedItemEffects.Effects;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -10,7 +9,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import edu.gatech.at.jamespark.AdvancedItemEffects.Effects;
+import java.util.List;
 
 public class AIERemoveCommand implements CommandExecutor {
 
@@ -22,7 +21,7 @@ public class AIERemoveCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command,
-            String label, String[] args) {
+                             String label, String[] args) {
         // Prevent executing from server console.
         if (!(sender instanceof Player)) {
             sender.sendMessage(ChatColor.RED
@@ -51,7 +50,7 @@ public class AIERemoveCommand implements CommandExecutor {
             if (args.length < 1 || args.length > 2) {
                 String[] missingArgs = {
                         ChatColor.RED + "Incomplete command input.",
-                        ChatColor.RED + "/aieremove [effect]" };
+                        ChatColor.RED + "/aieremove [effect]"};
                 player.sendMessage(missingArgs);
                 return false;
             }
@@ -59,7 +58,7 @@ public class AIERemoveCommand implements CommandExecutor {
             if ((!effects.stringArrayContainsIgnoreCase(
                     effects.potionEffectsList, args[0]))
                     && !effects.stringArrayContainsIgnoreCase(
-                            effects.particleEffectsList, args[0])) {
+                    effects.particleEffectsList, args[0])) {
                 player.sendMessage(ChatColor.RED + "Wrong effect type");
                 return false;
             }

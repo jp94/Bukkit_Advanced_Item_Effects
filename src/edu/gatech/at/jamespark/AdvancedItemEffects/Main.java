@@ -1,18 +1,16 @@
 package edu.gatech.at.jamespark.AdvancedItemEffects;
 
+import edu.gatech.at.jamespark.AdvancedItemEffects.commands.AIEAddCommand;
+import edu.gatech.at.jamespark.AdvancedItemEffects.commands.AIEClearCommand;
+import edu.gatech.at.jamespark.AdvancedItemEffects.commands.AIERemoveCommand;
+import edu.gatech.at.jamespark.AdvancedItemEffects.listeners.PlayerEventListener;
+import edu.gatech.at.jamespark.AdvancedItemEffects.schedulers.ParticleScheduler;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import edu.gatech.at.jamespark.AdvancedItemEffects.Commands.*;
-import edu.gatech.at.jamespark.AdvancedItemEffects.Listeners.*;
-import edu.gatech.at.jamespark.AdvancedItemEffects.Scheduler.ParticleScheduler;
-
-// BUKKIT CODE REVIEW MODS, YOU DO NOT HAVE TO REVIEW ALL OF THE CODES.
 // https://github.com/jp94/Bukkit_Advanced_Item_Effects/commits/master
-// This shows all of the edits for each versions I push out.
 
-// TODO Add custom Items to /give, /i etc. list
-// TODO On item change, show text along with effects
+// @TODO On item change, show text along with effects
 public class Main extends JavaPlugin {
 
     private ParticleScheduler particleScheduler;
@@ -30,7 +28,7 @@ public class Main extends JavaPlugin {
         particleScheduler = new ParticleScheduler(effects);
         particleScheduler.runTaskTimer(this, 0, 60);
 
-        // For generating config.yml if not existent.
+        // @TODO For generating config.yml if not existent.
         this.saveDefaultConfig();
     }
 
