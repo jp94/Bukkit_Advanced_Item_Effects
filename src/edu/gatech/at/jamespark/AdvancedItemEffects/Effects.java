@@ -1,11 +1,6 @@
 package edu.gatech.at.jamespark.AdvancedItemEffects;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
 import org.bukkit.ChatColor;
-import org.bukkit.Effect;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.FixedMetadataValue;
@@ -13,28 +8,33 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
 // TODO Better organization & javadoc
+
 /**
  * Contains helper methods
- * 
+ *
  * @author James
- * 
  */
 public class Effects {
 
-    private Plugin plugin;
-
-    public final String[] potionEffectsList = { "SPEED", "SLOW",
+    public final String[] potionEffectsList = {"SPEED", "SLOW",
             "FAST_DIGGING", "SLOW_DIGGING", "INCREASE_DAMAGE", "HEAL", "HARM",
             "JUMP", "CONFUSION", "REGENERATION", "DAMAGE_RESISTANCE",
             "FIRE_RESISTANCE", "WATER_BREATHING", "INVISIBILITY", "BLINDNESS",
             "NIGHT_VISION", "HUNGER", "WEAKNESS", "POISON", "WITHER",
-            "HEALTH_BOOST", "ABSORPTION", "SATURATION" };
+            "HEALTH_BOOST", "ABSORPTION", "SATURATION"};
+    public final String[] particleEffectsList = {"ENDER_SIGNAL",
+            "MOBSPAWNER_FLAMES", "POTION_BREAK", "SMOKE"};
 
-    public final String[] particleEffectsList = { "ENDER_SIGNAL",
-            "MOBSPAWNER_FLAMES", "POTION_BREAK", "SMOKE" };
+    public final String POTION_KEY = "AIE_CURRENT_POTION_EFFECTS";
+    public final String PARTICLE_KEY = "AIE_CURRENT_PARTICLE_EFFECTS";
 
     public ArrayList<Player> playerList = new ArrayList<>();
+    private Plugin plugin;
 
     public Effects(Plugin plugin) {
         this.plugin = plugin;
@@ -46,13 +46,11 @@ public class Effects {
 
     /**
      * Adds all item effects. Uses config file.
-     * 
-     * @param player
-     *            Player to add all active effects listed in items' lore.
-     * 
+     *
+     * @param player Player to add all active effects listed in items' lore.
      */
     public void addItemEffects(Player player, boolean addArmor,
-            boolean addInventory, boolean addHeld, List<String> itemLore) {
+                               boolean addInventory, boolean addHeld, List<String> itemLore) {
         // Checks for equipped items effects
         if (addArmor && plugin.getConfig().getBoolean("addEffects.equip")) {
             ItemStack[] armorList = player.getInventory().getArmorContents();
@@ -114,42 +112,41 @@ public class Effects {
     }
 
     public void addItemEffects(Player player, boolean addArmor,
-            boolean addInventory, boolean addHeld) {
+                               boolean addInventory, boolean addHeld) {
         addItemEffects(player, addArmor, addInventory, addHeld, null);
     }
 
     public void addAllBoundItemParticleEffects(Player player,
-            List<String> heldItemLore) {
+                                               List<String> heldItemLore) {
         for (int x = 0; x < particleEffectsList.length; x++) {
             int loreLineMatch = listContainsIgnoreCase(heldItemLore,
                     particleEffectsList[x]);
             if (loreLineMatch != -1) {
                 String[] effectSplit = heldItemLore.get(loreLineMatch)
-                        .replaceAll("\\s", "").split("¡×.");
+                        .replaceAll("\\s", "").split("ï¿½ï¿½.");
                 if (!(playerList.contains(player))) {
                     playerList.add(player);
                 }
-                player.setMetadata(effectSplit[1].toUpperCase(),
-                        new FixedMetadataValue(plugin, true));
+                addPlayerEffectMetadata(player, PARTICLE_KEY, effectSplit[1].toUpperCase());
             }
         }
     }
 
     public void addAllBoundItemPotionEffects(Player player,
-            List<String> heldItemLore) {
+                                             List<String> heldItemLore) {
         for (int x = 0; x < potionEffectsList.length; x++) {
             int loreLineMatch = listContainsIgnoreCase(heldItemLore,
                     potionEffectsList[x]);
             if (loreLineMatch != -1) {
                 String[] effectSplit = heldItemLore.get(loreLineMatch)
-                        .replaceAll("\\s", "").split("¡×.");
+                        .replaceAll("\\s", "").split("ï¿½ï¿½.");
                 if (effectSplit.length == 3) {
                     int multiplier = -1;
                     try {
                         multiplier = Integer.parseInt(effectSplit[2]);
                     } catch (NumberFormatException e) {
                     }
-                    if (multiplier > 0 && multiplier <= 2147483647) {
+                    if (multiplier > 0) {
                         addItemPotionEffect(player,
                                 PotionEffectType.getByName(effectSplit[1]),
                                 multiplier);
@@ -165,34 +162,46 @@ public class Effects {
 
     /**
      * Removes all player's bound effects caused by this plugin.
-     * 
-     * @param player
-     *            Player to remove all active effects caused by this plugin.
+     *
+     * @param player Player to remove all active effects caused by this plugin.
      */
     public void removeAllBoundEffects(Player player) {
-        removeAllParticleEffects(player);
-        removeAllBoundItemPotionEffects(player);
+        if (null == player) return;
+
+        if (player.hasMetadata(POTION_KEY)) {
+            // Get Player's active potion effects from this plugin
+            ArrayList playerPotionEffects = (ArrayList) player.getMetadata(POTION_KEY).get(0).value();
+
+            // @TODO Check if all player's effects get removed
+            // Clear Player's active potion effects
+            // Note: We are avoiding other active potion effects not from this plugin
+            for (Object playerPotionEffect : playerPotionEffects) {
+                PotionEffectType potionEffectType = PotionEffectType
+                        .getByName(playerPotionEffect.toString());  // @TODO check this later
+                if (potionEffectType != null) {
+                    player.removePotionEffect(potionEffectType);
+                }
+            }
+
+            player.removeMetadata(POTION_KEY, plugin);
+        }
+        if (player.hasMetadata(PARTICLE_KEY)) {
+            player.removeMetadata(PARTICLE_KEY, plugin);
+        }
+
+        // Remove Player from particle effect track list.
+        playerList.remove(player);
     }
 
     // ********************************************************************************************//
     // Private helper methods
     // ********************************************************************************************//
 
-    /**
-     * Adds all particle and potion effects given a specific item's lore.
-     * 
-     * @param player
-     *            Player to add item effects.
-     * @param itemLore
-     *            Lore that contains effects list to add listed effects to a
-     *            player.
-     */
     private void addItemPotionEffect(Player player, PotionEffectType type,
-            int level) {
+                                     int level) {
         player.addPotionEffect(new PotionEffect(type, 2147483647, level - 1,
                 false));
-        player.setMetadata(type.toString(),
-                new FixedMetadataValue(plugin, true));
+        addPlayerEffectMetadata(player, POTION_KEY, type.toString());
     }
 
     private void addAllItemEffects(Player player, List<String> itemLore) {
@@ -200,44 +209,6 @@ public class Effects {
         addAllBoundItemPotionEffects(player, itemLore);
     }
 
-    private void removeItemPotionEffect(Player player, PotionEffectType type) {
-        player.removeMetadata(type.toString(), plugin);
-        player.removePotionEffect(type);
-    }
-
-    /**
-     * Removes all of the potion effects listed in player's metadata. NOTE: When
-     * using this, good practice to check if player's item's lore.
-     * 
-     * 
-     * @param player
-     *            Player to remove all potion effects bound in metadata
-     */
-    private void removeAllBoundItemPotionEffects(Player player) {
-        for (int x = 0; x < potionEffectsList.length; x++) {
-            PotionEffectType potionEffectType = PotionEffectType
-                    .getByName(potionEffectsList[x]);
-            if (player.hasMetadata(potionEffectType.toString())) {
-                removeItemPotionEffect(player, potionEffectType);
-            }
-        }
-    }
-
-    private void removeBoundItemParticleEffect(Player player, Effect type) {
-        player.removeMetadata(type.toString(), plugin);
-        if (playerList.contains(player)) {
-            playerList.remove(player);
-        }
-    }
-
-    private void removeAllParticleEffects(Player player) {
-        for (int x = 0; x < particleEffectsList.length; x++) {
-            Effect effect = Effect.valueOf(particleEffectsList[x]);
-            if (player.hasMetadata(effect.toString())) {
-                removeBoundItemParticleEffect(player, effect);
-            }
-        }
-    }
 
     // ********************************************************************************************//
     // Remaining methods
@@ -248,9 +219,7 @@ public class Effects {
 
         int line = 0;
         while (iter.hasNext()) {
-            if (iter.next().toUpperCase().contains(str.toUpperCase())) {
-                return line;
-            }
+            if (iter.next().toUpperCase().contains(str.toUpperCase())) return line;
             line++;
         }
         return -1;
@@ -263,5 +232,14 @@ public class Effects {
             }
         }
         return false;
+    }
+
+    private void addPlayerEffectMetadata(Player player, String key, String value) {
+        ArrayList<String> playerParticleEffects = (ArrayList) player.getMetadata(key).get(0).value();
+        if (null == playerParticleEffects) {
+            playerParticleEffects = new ArrayList<>();
+            player.setMetadata(key, new FixedMetadataValue(plugin, playerParticleEffects));
+        }
+        playerParticleEffects.add(value);
     }
 }
