@@ -86,7 +86,7 @@ public class AIEAddCommand implements CommandExecutor {
             if (!(lore.contains(ChatColor.GOLD + "Effects:"))) {
                 lore.add(ChatColor.GOLD + "Effects:");
             }
-            if (effects.listContainsIgnoreCase(lore, args[0]) != -1) {
+            if (effects.listContains(lore, args[0]) != -1) {
                 player.sendMessage(ChatColor.RED
                         + "This effect type is already used.");
                 return false;
@@ -125,7 +125,7 @@ public class AIEAddCommand implements CommandExecutor {
                 lore.add(ChatColor.GOLD + "Effects:");
             }
 
-            if (effects.listContainsIgnoreCase(lore, args[0]) != -1) {
+            if (effects.listContains(lore, args[0]) != -1) {
                 player.sendMessage(ChatColor.RED
                         + "This effect type is already used.");
                 return false;

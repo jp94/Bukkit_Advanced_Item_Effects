@@ -27,8 +27,6 @@ public class Main extends JavaPlugin {
         getCommand("aieclear").setExecutor(new AIEClearCommand(effects));
         particleScheduler = new ParticleScheduler(effects);
         particleScheduler.runTaskTimer(this, 0, 60);
-
-        // @TODO For generating config.yml if not existent.
         this.saveDefaultConfig();
     }
 

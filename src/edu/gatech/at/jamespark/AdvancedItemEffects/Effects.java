@@ -111,38 +111,25 @@ public class Effects {
 
     public void addAllBoundItemParticleEffects(Player player,
                                                List<String> heldItemLore) {
-        for (int x = 0; x < particleEffectsList.length; x++) {
-            int loreLineMatch = listContainsIgnoreCase(heldItemLore,
-                    particleEffectsList[x]);
-            if (loreLineMatch != -1) {
-                String[] effectSplit = heldItemLore.get(loreLineMatch)
-                        .replaceAll("\\s", "").split("��.");
+        for (String particleEffectName : particleEffectsList) {
+            if (listContains(heldItemLore, particleEffectName) != -1) {
                 playerList.add(player);
-                addPlayerEffectMetadata(player, PARTICLE_KEY, effectSplit[1].toUpperCase());
+                addPlayerEffectMetadata(player, PARTICLE_KEY, particleEffectName);
             }
         }
     }
 
     public void addAllBoundItemPotionEffects(Player player,
                                              List<String> heldItemLore) throws NumberFormatException {
-        System.out.println("POTION EFFECT ADDING");
         String currentLoreLine;
-        for (int x = 0; x < potionEffectsList.length; x++) {
-            System.out.println("Checking: " + potionEffectsList[x]);
-            int matchingLineNumber = listContainsIgnoreCase(heldItemLore,
-                    potionEffectsList[x]);
+        int multiplier;
+        for (String potionEffectName : potionEffectsList) {
+            int matchingLineNumber = listContains(heldItemLore, potionEffectName);
             if (matchingLineNumber != -1) {
-                System.out.println("MATCH!");
-                int multiplier = -1;
-                System.out.println("LORE NAME: " + heldItemLore.get(matchingLineNumber));
                 currentLoreLine = heldItemLore.get(matchingLineNumber);
                 multiplier = Integer.parseInt(currentLoreLine.substring(currentLoreLine.lastIndexOf(ChatColor.WHITE.toString()) + 2));
-                System.out.println("multiplier:" + multiplier);
-                if (multiplier > 0) {
-                    addItemPotionEffect(player,
-                            PotionEffectType.getByName(potionEffectsList[x]),
-                            multiplier);
-                }
+                if (multiplier < 1) return;
+                addItemPotionEffect(player, PotionEffectType.getByName(potionEffectName), multiplier);
             }
         }
     }
@@ -158,19 +145,14 @@ public class Effects {
      */
     public void removeAllBoundEffects(Player player) {
         if (null == player) return;
-        System.out.println("Removing effects");
         if (player.hasMetadata(POTION_KEY)) {
             // Get Player's active potion effects from this plugin
             ArrayList<String> playerPotionEffects = (ArrayList) player.getMetadata(POTION_KEY).get(0).value();
-            System.out.println(playerPotionEffects + " < should be arraylist");
             // @TODO Check if all player's effects get removed
             // Clear Player's active potion effects
             // Note: We are avoiding other active potion effects not from this plugin
             for (String playerPotionEffect : playerPotionEffects) {
-                System.out.println("Targeted: " + playerPotionEffects);
-                PotionEffectType potionEffectType = PotionEffectType
-                        .getByName(playerPotionEffect);
-                System.out.println("Removing: " + potionEffectType);
+                PotionEffectType potionEffectType = PotionEffectType.getByName(playerPotionEffect);
                 player.removePotionEffect(potionEffectType);
             }
             player.removeMetadata(POTION_KEY, plugin);
@@ -203,12 +185,11 @@ public class Effects {
     // Remaining methods
     // ********************************************************************************************//
 
-    public int listContainsIgnoreCase(List<String> list, String str) {
+    public int listContains(List<String> list, String str) {
         Iterator<String> iter = list.iterator();
-
         int line = 0;
         while (iter.hasNext()) {
-            if (iter.next().toUpperCase().contains(str.toUpperCase())) return line;
+            if (iter.next().contains(str)) return line;
             line++;
         }
         return -1;
@@ -228,12 +209,9 @@ public class Effects {
 
         List playerMetadata = player.getMetadata(key);
         if (playerMetadata.isEmpty()) {
-            System.out.println("Player metadata was null.");
             player.setMetadata(key, new FixedMetadataValue(plugin, new ArrayList<>()));
         }
         ArrayList<String> playerEffects = (ArrayList) player.getMetadata(key).get(0).value();
         playerEffects.add(value);
-        System.out.println("Adding new effect: " + value);
-        System.out.println("Contains?: " + ((ArrayList) player.getMetadata(key).get(0).value()).contains(value));
     }
 }

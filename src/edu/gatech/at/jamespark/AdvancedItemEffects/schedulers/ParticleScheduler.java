@@ -20,13 +20,7 @@ public class ParticleScheduler extends BukkitRunnable {
 
         for (Player player : effects.playerList) {
             for (String particleEffect : (ArrayList<String>) player.getMetadata(effects.PARTICLE_KEY).get(0).value()) {
-                if (player.hasMetadata(particleEffect)) {
-                    player.getWorld()
-                            .playEffect(
-                                    player.getLocation(),
-                                    Effect.valueOf(particleEffect), // @TODO removed toUpperCase() on particleEffect
-                                    7, 40);
-                }
+                player.getWorld().playEffect(player.getLocation(), Effect.valueOf(particleEffect), 7, 30);
             }
         }
     }

@@ -64,7 +64,7 @@ public class AIERemoveCommand implements CommandExecutor {
             if (lore.size() == 2) {
                 lore = null;
             } else {
-                lore.remove(effects.listContainsIgnoreCase(lore, args[0]));
+                lore.remove(effects.listContains(lore, args[0]));
             }
             itemMeta.setLore(lore);
             item.setItemMeta(itemMeta);

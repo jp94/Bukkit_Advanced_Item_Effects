@@ -48,7 +48,7 @@ public class AIEClearCommand implements CommandExecutor {
         if (lore != null && (lore.contains(ChatColor.GOLD + "Effects:"))) {
 
             for (int x = lore.size() - 1; x >= effects
-                    .listContainsIgnoreCase(lore, "Effects:") && x > -1; x--) {
+                    .listContains(lore, "Effects:") && x > -1; x--) {
                 lore.remove(x);
             }
 
