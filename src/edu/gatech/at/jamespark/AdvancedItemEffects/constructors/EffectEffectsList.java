@@ -14,6 +14,7 @@ public class EffectEffectsList {
     private static ArrayList<String> effectEffectsList;
     private static String[] array;
     private static String string;
+    private static String[] incompatibleEffects = {"ITEM_BREAK", "TILE_BREAK", "TILE_DUST"};
 
     private EffectEffectsList() {
         throw new AssertionError();
@@ -25,6 +26,9 @@ public class EffectEffectsList {
         Field[] effectFields = Effect.class.getFields();
         for (Field effectField : effectFields) {
             effectEffectsList.add(effectField.getName());
+        }
+        for (String incompatibleEffect : incompatibleEffects) {
+            effectEffectsList.remove(incompatibleEffect);
         }
         return effectEffectsList;
     }
