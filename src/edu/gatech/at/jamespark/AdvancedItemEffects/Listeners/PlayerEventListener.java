@@ -1,23 +1,19 @@
-package edu.gatech.at.jamespark.AdvancedItemEffects.Listeners;
+package edu.gatech.at.jamespark.AdvancedItemEffects.listeners;
 
-import java.util.List;
+import edu.gatech.at.jamespark.AdvancedItemEffects.Effects;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryCloseEvent;
-//import org.bukkit.event.inventory.InventoryDragEvent;
-import org.bukkit.event.player.PlayerDropItemEvent;
-import org.bukkit.event.player.PlayerItemBreakEvent;
-import org.bukkit.event.player.PlayerItemHeldEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerPickupItemEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitScheduler;
 
-import edu.gatech.at.jamespark.AdvancedItemEffects.Effects;
+import java.util.List;
+
+//import org.bukkit.event.inventory.InventoryDragEvent;
 
 public class PlayerEventListener implements Listener {
 
@@ -117,12 +113,7 @@ public class PlayerEventListener implements Listener {
             List<String> pickedItemLore = pickedItem.getItemMeta().getLore();
             if (pickedItemLore.contains(ChatColor.GOLD + "Effects:")) {
                 BukkitScheduler scheduler = plugin.getServer().getScheduler();
-                scheduler.scheduleSyncDelayedTask(plugin, new Runnable() {
-                    @Override
-                    public void run() {
-                        effects.addItemEffects(player, false, true, true);
-                    }
-                }, 1L);
+                scheduler.scheduleSyncDelayedTask(plugin, () -> effects.addItemEffects(player, false, true, true), 1L);
             }
         }
     }
